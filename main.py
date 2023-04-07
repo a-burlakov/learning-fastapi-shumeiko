@@ -1,4 +1,3 @@
-import string
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
@@ -24,7 +23,7 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
 
 
 fake_users = [
-    {"id": 1, "role": ["abc"], "name": "bob"},
+    {"id": 1, "role": ["abc"], "name": ["bob"]},
     {"id": 2, "role": "investor", "name": "john"},
     {"id": 3, "role": "trader", "name": "alex"},
     {
@@ -32,7 +31,7 @@ fake_users = [
         "role": "investor",
         "name": "Homer",
         "degree": [
-            {"id": 1, "created_at": "2020-01-01T00:00:00", "type_degree": "exfpert"}
+            {"id": 1, "created_at": "2020-01-01T00:00:00", "type_degree": "expert"}
         ],
     },
 ]
