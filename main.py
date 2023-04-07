@@ -4,9 +4,24 @@ from enum import Enum
 from typing import List, Optional
 
 from fastapi import FastAPI
-from pydantic import BaseModel, Field
+from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel, Field, ValidationError
+from starlette import status
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
-app = FastAPI(title="Trading App")
+app = FastAPI(
+    title="Trading App",
+)
+
+
+@app.exception_handler(ValidationError)
+async def validation_exception_handler(request: Request, exc: ValidationError):
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder({"detail": exc.errors()}),
+    )
+
 
 fake_users = [
     {"id": 1, "role": ["abc"], "name": "bob"},
@@ -17,7 +32,7 @@ fake_users = [
         "role": "investor",
         "name": "Homer",
         "degree": [
-            {"id": 1, "created_at": "2020-01-01T00:00:00", "type_degree": "expert"}
+            {"id": 1, "created_at": "2020-01-01T00:00:00", "type_degree": "exfpert"}
         ],
     },
 ]
