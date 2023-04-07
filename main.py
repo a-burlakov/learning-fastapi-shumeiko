@@ -1,4 +1,8 @@
+import string
+from typing import List
+
 from fastapi import FastAPI
+from pydantic import BaseModel, Field
 
 app = FastAPI(title="Trading App")
 
@@ -39,25 +43,16 @@ fake_trades = [
 ]
 
 
-@app.get("/trades")
-def get_trades(offset: int = 0, limit: int = 10):
-    return fake_trades[offset:][:limit]
+class Trade(BaseModel):
+    id: int
+    user_id: int
+    currency: str = Field(max_length=5)
+    side: str
+    price: float = Field(ge=0)
+    amount: float
 
 
-fake_users_2 = [
-    {"id": 1, "role": "admin", "name": "bob"},
-    {"id": 2, "role": "investor", "name": "john"},
-    {"id": 3, "role": "trader", "name": "alex"},
-]
-
-
-@app.post("/users/{users_id}")
-def change_user_name(users_id: int, new_name: str):
-    current_user = next(
-        (user for user in fake_users_2 if user["id"] == users_id),
-        fake_users_2[0],
-    )
-
-    current_user["name"] = new_name
-
-    return current_user
+@app.post("/trades")
+def add_trades(trades: List[Trade]):
+    fake_trades.extend(trades)
+    return {"status": 200, "data": fake_trades}
