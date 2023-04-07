@@ -1,7 +1,7 @@
 import string
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
@@ -43,7 +43,7 @@ class User(BaseModel):
     id: int
     role: str
     name: str
-    degree: List[Degree]
+    degree: Optional[List[Degree]]
 
 
 @app.get("/users/{user_id}", response_model=List[User])
