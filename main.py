@@ -1,4 +1,6 @@
 import string
+from datetime import datetime
+from enum import Enum
 from typing import List
 
 from fastapi import FastAPI
@@ -7,9 +9,17 @@ from pydantic import BaseModel, Field
 app = FastAPI(title="Trading App")
 
 fake_users = [
-    {"id": 1, "role": "admin", "name": "bob"},
+    {"id": 1, "role": ["abc"], "name": "bob"},
     {"id": 2, "role": "investor", "name": "john"},
     {"id": 3, "role": "trader", "name": "alex"},
+    {
+        "id": 4,
+        "role": "investor",
+        "name": "Homer",
+        "degree": [
+            {"id": 1, "created_at": "2020-01-01T00:00:00", "type_degree": "expert"}
+        ],
+    },
 ]
 
 
@@ -18,7 +28,25 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/users/{user_id}")
+class DegreeType(Enum):
+    newbie = "newbie"
+    expert = "expert"
+
+
+class Degree(BaseModel):
+    id: int
+    created_at: datetime
+    type_degree: DegreeType
+
+
+class User(BaseModel):
+    id: int
+    role: str
+    name: str
+    degree: List[Degree]
+
+
+@app.get("/users/{user_id}", response_model=List[User])
 async def root(user_id: int):
     return [user for user in fake_users if user.get("id") == int(user_id)]
 
