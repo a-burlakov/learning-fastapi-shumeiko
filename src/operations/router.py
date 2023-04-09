@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.encoders import jsonable_encoder
@@ -15,25 +15,31 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[Operation])
+@router.get(
+    "/",
+    # response_model=List[Operation],
+)
 async def get_specific_operations(
     operation_type: str, session: AsyncSession = Depends(get_async_session)
 ):
+    # Желательно всегда ставить exception, потому что все может пойти не так.
     try:
         query = select(operation).where(operation.c.type == operation_type)
 
         result = await session.execute(query)
         resres = result.all()
         x = 1 / 0
-        # resres = jsonable_encoder(resres)
         print(resres)
         return resres
     except ZeroDivisionError:
-        return {
-            "status": "dividing to zero",
-            "data": None,
-            "details": "fatal zerokill",
-        }
+        return HTTPException(
+            status_code=500,
+            detail={
+                "status": "dividing to zero",
+                "data": None,
+                "details": "fatal overkill",
+            },
+        )
 
     except:
         return {
