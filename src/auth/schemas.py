@@ -1,7 +1,9 @@
+import datetime
 import uuid
 from typing import Optional
 
 from fastapi_users import schemas
+from pydantic import BaseModel
 
 
 class UserRead(schemas.BaseUser[int]):
@@ -25,3 +27,15 @@ class UserCreate(schemas.BaseUserCreate):
     is_active: Optional[bool] = True
     is_superuser: Optional[bool] = False
     is_verified: Optional[bool] = False
+
+
+class Operation(BaseModel):
+    id: int
+    quantity: str | None
+    figi: str | None
+    date: datetime.datetime | None
+    instrument_type: str | None
+    type: str | None
+
+    class Config:
+        orm_mode = True

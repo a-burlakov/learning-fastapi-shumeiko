@@ -1,7 +1,11 @@
+from typing import List
+
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.encoders import jsonable_encoder
+
+from src.auth.schemas import Operation
 from src.database import get_async_session
 from src.operations.models import operation
 
@@ -11,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.get("/")
+@router.get("/", response_model=List[Operation])
 async def get_specific_operations(
     operation_type: str, session: AsyncSession = Depends(get_async_session)
 ):
