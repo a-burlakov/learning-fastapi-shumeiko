@@ -19,10 +19,25 @@ router = APIRouter(
 async def get_specific_operations(
     operation_type: str, session: AsyncSession = Depends(get_async_session)
 ):
-    query = select(operation).where(operation.c.type == operation_type)
+    try:
+        query = select(operation).where(operation.c.type == operation_type)
 
-    result = await session.execute(query)
-    resres = result.all()
-    # resres = jsonable_encoder(resres)
-    print(resres)
-    return resres
+        result = await session.execute(query)
+        resres = result.all()
+        x = 1 / 0
+        # resres = jsonable_encoder(resres)
+        print(resres)
+        return resres
+    except ZeroDivisionError:
+        return {
+            "status": "dividing to zero",
+            "data": None,
+            "details": "fatal zerokill",
+        }
+
+    except:
+        return {
+            "status": "error",
+            "data": None,
+            "details": None,
+        }
