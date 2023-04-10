@@ -6,3 +6,6 @@ sqlalchemy~=2.0.9
 asyncpg
 pydantic~=1.10.7
 aioredis~=2.0.1
+fastapi_cache2[redis]
+celery
+flower
