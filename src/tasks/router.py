@@ -1,53 +1,18 @@
-from asyncio import sleep
-from typing import List
+from fastapi import APIRouter, BackgroundTasks, Depends
 
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi_cache.decorator import cache
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi.encoders import jsonable_encoder
+from auth.base_config import current_user
 
-from src.auth.schemas import Operation
-from src.database import get_async_session
-from src.operations.models import operation
+from .tasks import send_email_report_dashboard
 
-router = APIRouter(
-    prefix="/operations",
-    tags=["Operations"],
-)
+router = APIRouter(prefix="/report")
 
 
-@router.get(
-    "/",
-    response_model=List[Operation],
-)
-@cache(expire=2)
-async def get_specific_operations(
-    operation_type: str, session: AsyncSession = Depends(get_async_session)
-):
-    await sleep(1)
-    # Желательно всегда ставить exception, потому что все может пойти не так.
-    try:
-        query = select(operation).where(operation.c.type == operation_type)
-
-        result = await session.execute(query)
-        resres = result.all()
-        # x = 1 / 0
-        print(resres)
-        return resres
-    except ZeroDivisionError:
-        return HTTPException(
-            status_code=500,
-            detail={
-                "status": "dividing to zero",
-                "data": None,
-                "details": "fatal overkill",
-            },
-        )
-
-    except:
-        return {
-            "status": "error",
-            "data": None,
-            "details": None,
-        }
+@router.get("/dashboard")
+def get_dashboard_report(background_tasks: BackgroundTasks, user=Depends(current_user)):
+    # 1400 ms - Клиент ждет
+    # send_email_report_dashboard(user.username)
+    # 500 ms - Задача выполняется на фоне FastAPI в event loop'е или в другом треде
+    background_tasks.add_task(send_email_report_dashboard, "Алексей")
+    # 600 ms - Задача выполняется воркером Celery в отдельном процессе
+    send_email_report_dashboard.delay(user.username)
+    return {"status": 200, "data": "Письмо отправлено", "details": None}

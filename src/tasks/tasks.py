@@ -3,7 +3,7 @@ from email.message import EmailMessage
 
 from celery import Celery
 
-from src.config import SMTP_PASSWORD, SMTP_USER
+from config import SMTP_PASSWORD, SMTP_USER
 
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 465
@@ -15,7 +15,7 @@ def get_email_template_dashboard(username: str):
     email = EmailMessage()
     email["Subject"] = "Натрейдил Отчет Дашборд"
     email["From"] = SMTP_USER
-    email["To"] = SMTP_USER
+    email["To"] = "fln@mail.ru"
 
     email.set_content(
         "<div>"
