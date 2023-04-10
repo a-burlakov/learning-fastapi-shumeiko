@@ -18,10 +18,12 @@ from src.database import User
 from src.auth.manager import get_user_manager
 from src.auth.schemas import UserRead, UserCreate
 from src.operations.router import router as router_operations
+from tasks.router import router as router_tasks
 
 app = FastAPI(title="Trading App")
 
 app.include_router(router_operations)
+app.include_router(router_tasks)
 
 
 @app.on_event("startup")
