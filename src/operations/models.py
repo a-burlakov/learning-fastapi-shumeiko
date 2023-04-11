@@ -1,18 +1,6 @@
-from datetime import datetime
+from sqlalchemy import TIMESTAMP, Column, Integer, String, Table
 
-from sqlalchemy import (
-    MetaData,
-    Table,
-    Column,
-    Integer,
-    String,
-    TIMESTAMP,
-    ForeignKey,
-    JSON,
-    Boolean,
-)
-
-metadata = MetaData()
+from database import metadata
 
 operation = Table(
     "operation",
