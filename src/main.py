@@ -1,53 +1,26 @@
-from datetime import datetime
-from enum import Enum
-from typing import List, Optional, Union
+from fastapi import FastAPI, Depends
 
-import aioredis
-from fastapi_cache import FastAPICache
-from fastapi_cache.backends.redis import RedisBackend
-from fastapi_users import fastapi_users, FastAPIUsers
-from pydantic import BaseModel, Field
-
-from fastapi import FastAPI, Request, status, Depends
-from fastapi.encoders import jsonable_encoder
-from fastapi.exceptions import ValidationError
-from fastapi.responses import JSONResponse
-from starlette.middleware.cors import CORSMiddleware
-
-from src.auth.auth import auth_backend
-
-from src.auth.manager import get_user_manager
-from src.auth.schemas import UserRead, UserCreate
-from src.operations.router import router as router_operations
-from tasks.router import router as router_tasks
-
-app = FastAPI(title="Trading App")
-
-app.include_router(router_operations)
-app.include_router(router_tasks)
-
-origins = [
-    "http://localhost:3000",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PATCH", "PUT"],
-    allow_headers=[
-        "Content-Type",
-        "Set-Cookie",
-        "Access-Control-Allow-Headers",
-        "Access-Control-Allow-Origin",
-        "Authorization",
-    ],
-)
+app = FastAPI()
 
 
-@app.on_event("startup")
-async def startup_event():
-    redis = aioredis.from_url(
-        "redis://localhost", encoding="utf8", decode_response=True
-    )
-    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+async def get_async_session():
+    print("Получение сессии")
+    session = "session"
+    yield session
+    print("Уничтожение сессии")
+
+
+# depends - временные соединения с БД, redis и т.д.
+# мы сначала получаем сессию, она в ендпоинт отдается, и только потом контроль в get_async_session возвращается, и сессия уничтожается
+# если, кстати, в get_async_session поместить парамтер, то он будет требоваться при посылании сигнала на view
+
+
+@app.get("/items")
+async def get_items(session=Depends(get_async_session)):
+    print(session)
+    return [{"id": 1}]
+
+
+@app.get("/subjects")
+async def get_subjects(limit: int = 10, skip: int = 0):
+    return [{"id": 1}]
