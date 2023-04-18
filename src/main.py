@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, APIRouter
 from starlette.requests import Request
 
 app = FastAPI()
@@ -79,3 +79,9 @@ async def get_subjects(pagination_params: Paginator = Depends(Paginator)):
 @app.get("/payments", dependencies=[Depends(auth_guard_payments)])
 def get_payments():
     return "my payments"
+
+
+# Мы можем на все ендпоинты одного роутера накинуть зависимость! <3
+router = APIRouter(
+    dependencies=[Depends(auth_guard_payments)],
+)
